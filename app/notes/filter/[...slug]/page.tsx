@@ -6,6 +6,8 @@ import {
 import { fetchNotes } from "@/lib/api";
 import NotesClient from "./Notes.client";
 import { Metadata } from "next";
+
+// Оголошуємо тип для пропсів цієї сторінки
 type Props = {
   params: Promise<{ slug: string[] }>;
 };
