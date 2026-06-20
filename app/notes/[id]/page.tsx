@@ -3,18 +3,25 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
+import { Metadata } from "next"; // <-- Додано імпорт Metadata
 import { fetchNoteById } from "@/lib/api";
 import NoteDetailsClient from "./NoteDetails.client";
+
+// Виносимо тип Props, щоб він був доступний для generateMetadata
+type Props = {
+  params: Promise<{ id: string }>;
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const note = await fetchNoteById(id);
+  
   return {
-    title: `Note: ${note.title}`,
-    description: note.content.slice(0, 30),
+    title: `Note: ${note?.title || "Untitled"}`,
+    description: note?.content?.slice(0, 30) || "",
     openGraph: {
-      title: `Note: ${note.title}`,
-      description: note.content.slice(0, 50),
+      title: `Note: ${note?.title || "Untitled"}`,
+      description: note?.content?.slice(0, 50) || "",
       url: `https://08-zustand-xi-sage.vercel.app/notes/${id}`,
       siteName: "NoteHub",
       images: [
@@ -22,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
           width: 1200,
           height: 630,
-          alt: note.title,
+          alt: note?.title || "Note Image",
         },
       ],
       type: "article",
@@ -30,11 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function NoteDetailsPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function NoteDetailsPage({ params }: Props) { // <-- Використовуємо той самий тип Props
   const queryClient = new QueryClient();
   const { id } = await params;
 
